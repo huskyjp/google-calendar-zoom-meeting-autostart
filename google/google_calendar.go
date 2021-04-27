@@ -12,29 +12,28 @@ import (
 	"google.golang.org/api/option"
 )
 
-const (
-	calendarToken = "/google-calendar-token"
-	credentials   = "credentials.json"
-)
-
 type GoogleCalendarMeeting struct {
 	Title      string
 	StartTime  time.Time
 	MeetingURL string
 }
 
+const (
+	calendarToken = "/google-calendar-token"
+	credentials   = "credentials.json"
+)
+
 func GetUpcomingMeeting() (GoogleCalendarMeeting, error) {
 	google := GoogleCalendarMeeting{}
 	client, err := newGoogleCalendarClient()
-	fmt.Println("err: ", err)
 	if err != nil {
 		return google, err
 	}
 	eventService := calendar.NewEventsService(client)
 	eventListner := eventService.List("primary")
-	eventListner.MaxResults(3)
+	eventListner.MaxResults(5)
 	eventListner.SingleEvents(true)
-	eventListner.OrderBy("starttime")
+	// eventListner.OrderBy("starttime")
 
 	eventListner.TimeMin(time.Now().Format(time.RFC3339))
 	eventListner.TimeMax(time.Now().Add(time.Minute * 30).Format(time.RFC3339))
@@ -51,6 +50,7 @@ func GetUpcomingMeeting() (GoogleCalendarMeeting, error) {
 
 	fmt.Println("evnts: ", events)
 	eventOne := events.Items[0]
+	fmt.Printf("%#v\n", eventOne)
 	eventTwo := events.Items[1]
 	fmt.Println(eventOne.Summary)
 	fmt.Println(eventTwo.Summary)
@@ -68,10 +68,9 @@ func GetUpcomingMeeting() (GoogleCalendarMeeting, error) {
 
 	for _, entry := range eventOne.ConferenceData.EntryPoints {
 		if entry.EntryPointType == "video" {
-			fmt.Println(entry.Uri)
+			fmt.Println("the video url is: ", entry.Uri)
 			google.MeetingURL = entry.Uri
 			break
-
 		}
 
 	}
@@ -82,6 +81,7 @@ func GetUpcomingMeeting() (GoogleCalendarMeeting, error) {
 
 // client for google calender to fetch its data
 func newGoogleCalendarClient() (*calendar.Service, error) {
+
 	newCredential, err := ioutil.ReadFile(credentials)
 	if err != nil {
 		return nil, err
