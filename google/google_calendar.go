@@ -13,9 +13,11 @@ import (
 )
 
 type GoogleCalendarMeeting struct {
-	Title      string
-	StartTime  time.Time
-	MeetingURL string
+	Title              string
+	StartTime          time.Time
+	MeetingURL         string
+	ConferenceID       string
+	ConferencePassword string
 }
 
 const (
@@ -74,6 +76,8 @@ func GetUpcomingMeeting() (GoogleCalendarMeeting, error) {
 		if entry.EntryPointType == "video" {
 			fmt.Println("the video url is: ", entry.Uri)
 			google.MeetingURL = entry.Uri
+			google.ConferenceID = entry.MeetingCode
+			google.ConferencePassword = entry.Password
 			break
 		}
 
@@ -116,7 +120,7 @@ func fetchNewToken(config *oauth2.Config) (*oauth2.Token, error) {
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
-		return &oauth2.Token{}, fmt.Errorf("Unable to read authorization ode: &v\n", err)
+		return &oauth2.Token{}, fmt.Errorf("Unable to read authorization ode: %s", err)
 	}
 
 	token, err := config.Exchange(context.TODO(), authCode)
