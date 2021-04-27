@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"google-calendar-zoom-autostart/google"
+	"google-calendar-zoom-autostart/zoom"
 )
 
 func main() {
@@ -14,5 +15,8 @@ func main() {
 
 	fmt.Printf("%#v \n", upcoming)
 	fmt.Println(upcoming.Title)
+	fmt.Println(upcoming.MeetingURL)
+
+	zoom.OpenZoom(upcoming)
 
 }
