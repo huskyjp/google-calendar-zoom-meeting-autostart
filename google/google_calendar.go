@@ -31,8 +31,8 @@ func GetUpcomingMeeting() (GoogleCalendarMeeting, error) {
 	}
 	eventService := calendar.NewEventsService(client)
 	eventListner := eventService.List("primary")
-	eventListner.MaxResults(5)
-	eventListner.SingleEvents(true)
+	//eventListner.MaxResults(5)
+	//eventListner.SingleEvents(true)
 	// eventListner.OrderBy("starttime")
 
 	eventListner.TimeMin(time.Now().Format(time.RFC3339))
@@ -46,19 +46,23 @@ func GetUpcomingMeeting() (GoogleCalendarMeeting, error) {
 	fmt.Println("current events inside: ", events)
 	if len(events.Items) == 0 {
 		fmt.Println("there is no meetings is scheduled at this moment")
+		return google, fmt.Errorf("the event length was 0")
 	}
 
-	fmt.Println("evnts: ", events)
+	fmt.Println("current event lists: ", events)
 	eventOne := events.Items[0]
-	fmt.Printf("%#v\n", eventOne)
-	eventTwo := events.Items[1]
-	fmt.Println(eventOne.Summary)
-	fmt.Println(eventTwo.Summary)
+	//fmt.Printf("%#v\n", eventOne)
+	//eventTwo := events.Items[1]
+	//fmt.Println(eventOne.Summary)
+	//fmt.Println(eventTwo.Summary)
 
 	// get meeting title
 	google.Title = eventOne.Summary
 
 	meetingTime, err := time.Parse(time.RFC3339, eventOne.Start.DateTime)
+	if err != nil {
+		return google, nil
+	}
 	// get meeting start time
 	google.StartTime = meetingTime
 
